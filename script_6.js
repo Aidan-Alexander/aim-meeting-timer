@@ -77,14 +77,15 @@ console.log(weeklyPrompt);
 nextTeamButton.addEventListener('click', () => {
     if (timerInterval) clearInterval(timerInterval);
 
-    // Randomly pick a team - for demonstration, it resets to initial time
+    // Hide start screen on first click
+    const startScreen = document.getElementById('startScreen');
+    if (startScreen) startScreen.remove();
+
     const team = shuffledTeams[currentTeamIndex];
     updateTeamName(team);
     showTeamIcon(team);
-    // setWeeklyPrompt(weeklyPrompt)
     currentTeamIndex = (currentTeamIndex + 1) % shuffledTeams.length;
 
-    // Hide bunny gif by default
     bunnyGifEl.style.display = 'none';
 
     if (team === "Bunny Break") {
@@ -143,7 +144,7 @@ function setWeeklyPrompt(weeklyPrompt) {
 }
 
 function setBodyBackgroundColor(color) {
-    document.body.classList.remove('green', 'yellow', 'red', 'bunny');
+    document.body.classList.remove('start', 'green', 'yellow', 'red', 'bunny');
     document.body.classList.add(color);
 }
 
