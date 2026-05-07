@@ -15,7 +15,7 @@ let currentTeamIndex = 0;
 // const teams = ["Outreach", "Vetting", "Research Team", "Ops", "Charity Entrepreneurship", "AIM Grantmaking", "AIM Research Program","AIM Effective Giving","AIM Founding To Give","Hiring/Chief of Staff Stuff"];
 const teams = ["Recruitment", "Research Team", "Ops", "CEIP Program Management", "Special projects" ];
 shuffleArray(teams);
-const bunnyIndex = Math.floor(Math.random() * teams.length);
+const bunnyIndex = 1 + Math.floor(Math.random() * (teams.length - 1));
 teams.splice(bunnyIndex, 0, "Bunny Break");
 const shuffledTeams = [...teams, "The End!"];
 
