@@ -1,0 +1,255 @@
+#nextTeam {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    position: relative;
+    z-index: 20;
+}
+
+#nextTeam:hover {
+    background-color: #45a049; /* Darker green background on hover */
+}
+
+.timer {
+    /* width: 300px; */
+    /* height: 200px; */
+    /* border-radius: 100px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 300px;
+    /* border: 2px solid black; */
+    /* margin: 20px; */
+    color: white;
+    /* background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+}
+
+#teamName{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 100px;
+    line-height: 1;
+    color: white;
+}
+
+#weeklyPrompt{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    /* margin: 20px; */
+    color: white;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Stack vertically */
+    font-family: "Fredoka", sans-serif;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px #5c5c5c; /* Optional: Adds a shadow for better readability */
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Stack timer and team name vertically */
+    text-align: center;
+}
+
+#timer, #teamName {
+    /* margin: 10px 0; /* Add some space between timer and team name */
+}
+
+.green {
+    /* background-color: green; */
+    background-color: rgb(35, 215, 104);
+}
+
+.yellow {
+    /* background-color: yellow; */ 
+    background-color: rgb(255, 214, 88);
+}
+
+.red {
+    /* background-color: red; */
+    background-color: rgb(243, 78, 89);
+}
+
+.bunny {
+    background-color: rgb(200, 160, 220);
+}
+
+/* <uniquifier>: Use a uniquifier for the class name */
+/* <weight>: Use a value from 300 to 700 */
+/* <width>: Use a value from 75 to 125 */
+
+.fredoka-bold {
+  font-family: "Fredoka", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+/* Timer pulse animations (replaces emoji state indicators) */
+.green .timer {
+    animation: pulse-green 3s ease-in-out infinite;
+}
+.yellow .timer {
+    animation: pulse-yellow 1.5s ease-in-out infinite;
+}
+.red .timer {
+    animation: pulse-red 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { text-shadow: 2px 2px 4px #5c5c5c, 0 0 40px rgba(255,255,255,0.15); }
+    50%      { text-shadow: 2px 2px 4px #5c5c5c, 0 0 80px rgba(255,255,255,0.35); }
+}
+@keyframes pulse-yellow {
+    0%, 100% { text-shadow: 2px 2px 4px #5c5c5c, 0 0 30px rgba(0,0,0,0.1); }
+    50%      { text-shadow: 2px 2px 4px #5c5c5c, 0 0 60px rgba(0,0,0,0.25); }
+}
+@keyframes pulse-red {
+    0%, 100% { text-shadow: 2px 2px 4px #5c5c5c, 0 0 20px rgba(255,255,255,0.3); transform: scale(1); }
+    50%      { text-shadow: 2px 2px 4px #5c5c5c, 0 0 50px rgba(255,255,255,0.6); transform: scale(1.03); }
+}
+
+/* Team icons */
+#teamIcon {
+    width: 200px;
+    height: 200px;
+    margin: 10px auto;
+}
+.team-icon {
+    display: none;
+}
+.team-icon.active {
+    display: block;
+}
+.team-icon img {
+    width: 200px;
+    height: 200px;
+}
+
+/* Bunny gif slide */
+#bunnyGif {
+    margin: 20px auto;
+    text-align: center;
+}
+#bunnyGif img {
+    max-width: 480px;
+    max-height: 360px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+#newBunny {
+    margin-top: 16px;
+    background-color: rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 20px;
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    transition: background-color 0.3s;
+}
+#newBunny:hover {
+    background-color: rgba(255,255,255,0.5);
+}
+
+/* Farm animals - peeking from edges */
+.farm-animal {
+    position: fixed;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+}
+.farm-animal img {
+    width: 100px;
+    height: 100px;
+}
+
+/* Pig peeks from bottom-left */
+.peek-left {
+    bottom: -10px;
+    left: 30px;
+    animation: peek-up 20s ease-in-out infinite 5s;
+}
+
+/* Chicken peeks from bottom-right */
+.peek-right {
+    bottom: -10px;
+    right: 30px;
+    left: auto;
+    animation: peek-up 18s ease-in-out infinite 12s;
+}
+
+/* Cow peeks from top, upside down */
+.peek-top {
+    top: -80px;
+    right: 40px;
+    left: auto;
+    animation: peek-down 25s ease-in-out infinite 0s;
+}
+.peek-top img {
+    transform: rotate(180deg);
+}
+
+@keyframes peek-up {
+    0%, 10% { opacity: 0; transform: translateY(80px); }
+    15%, 30% { opacity: 1; transform: translateY(0); }
+    35%, 100% { opacity: 0; transform: translateY(80px); }
+}
+@keyframes peek-down {
+    0%, 10% { opacity: 0; transform: translateY(0); }
+    15%, 30% { opacity: 1; transform: translateY(70px); }
+    35%, 100% { opacity: 0; transform: translateY(0); }
+}
+
+/* Floating hearts */
+.heart {
+    position: absolute;
+    color: #e74c6f;
+    font-size: 18px;
+    opacity: 0;
+    pointer-events: none;
+    text-shadow: none;
+}
+.peek-left .heart, .peek-right .heart {
+    animation: heart-float-up 2s ease-out infinite;
+}
+.peek-top .heart {
+    animation: heart-float-down 2s ease-out infinite;
+}
+.heart.h1 { right: -10px; top: 10px; animation-delay: 0s; }
+.heart.h2 { right: -20px; top: 30px; animation-delay: 0.6s; }
+.heart.h3 { right: 5px; top: -5px; animation-delay: 1.2s; }
+.peek-top .heart.h1 { right: -10px; top: auto; bottom: 10px; }
+.peek-top .heart.h2 { right: -20px; top: auto; bottom: 30px; }
+.peek-top .heart.h3 { right: 5px; top: auto; bottom: -5px; }
+
+@keyframes heart-float-up {
+    0% { opacity: 0.9; transform: translateY(0) scale(0.8); }
+    100% { opacity: 0; transform: translateY(-35px) scale(1.1); }
+}
+@keyframes heart-float-down {
+    0% { opacity: 0.9; transform: translateY(0) scale(0.8); }
+    100% { opacity: 0; transform: translateY(35px) scale(1.1); }
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Meeting Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wdth,wght@75..125,300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style_5.css">
+</head>
+<body>
+
+    <div class="container">
+        <div id="teamName"></div>
+        <div id="teamIcon">
+            <picture id="icon-recruitment" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.gif" alt="Trophy">
+            </picture>
+            <picture id="icon-research" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.gif" alt="Brain">
+            </picture>
+            <picture id="icon-ops" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/2699_fe0f/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2699_fe0f/512.gif" alt="Gear">
+            </picture>
+            <picture id="icon-ceip" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" alt="Rocket">
+            </picture>
+            <picture id="icon-special" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/26a1/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a1/512.gif" alt="Lightning">
+            </picture>
+            <picture id="icon-bunny" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f407/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f407/512.gif" alt="Bunny">
+            </picture>
+            <picture id="icon-end" class="team-icon">
+                <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.webp" type="image/webp">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" alt="Party">
+            </picture>
+        </div>
+        <div id="bunnyGif" style="display:none;">
+            <img id="bunnyImg" src="" alt="Cute bunny">
+            <div><button id="newBunny">Another Bunny</button></div>
+        </div>
+        <div id="timer" class="timer"></div>
+        <div id="weeklyPrompt"></div>
+    </div>
+
+
+      
+    <button id="nextTeam">Next Team</button>
+
+    <audio id="timerSound" src="chime.mp3" preload="auto"></audio>
+
+    <!-- Farm animals that peek from edges -->
+    <div id="animal-pig" class="farm-animal peek-left">
+        <picture>
+            <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f416/512.webp" type="image/webp">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f416/512.gif" alt="Pig">
+        </picture>
+        <span class="heart h1">&#x2764;</span>
+        <span class="heart h2">&#x2764;</span>
+        <span class="heart h3">&#x2764;</span>
+    </div>
+    <div id="animal-chicken" class="farm-animal peek-right">
+        <picture>
+            <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f425/512.webp" type="image/webp">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f425/512.gif" alt="Chick">
+        </picture>
+        <span class="heart h1">&#x2764;</span>
+        <span class="heart h2">&#x2764;</span>
+        <span class="heart h3">&#x2764;</span>
+    </div>
+    <div id="animal-cow" class="farm-animal peek-top">
+        <picture>
+            <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f42e/512.webp" type="image/webp">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f42e/512.gif" alt="Cow">
+        </picture>
+        <span class="heart h1">&#x2764;</span>
+        <span class="heart h2">&#x2764;</span>
+        <span class="heart h3">&#x2764;</span>
+    </div>
+
+    <script src="weekly_prompts_5.js"></script>
+    <script src="script_6.js"></script>
+
+
+</body>
+</html>
