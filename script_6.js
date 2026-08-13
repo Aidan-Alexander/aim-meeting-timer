@@ -13,7 +13,7 @@ function shuffleArray(array) {
 
 let currentTeamIndex = 0;
 // const teams = ["Outreach", "Vetting", "Research Team", "Ops", "Charity Entrepreneurship", "AIM Grantmaking", "AIM Research Program","AIM Effective Giving","AIM Founding To Give","Hiring/Chief of Staff Stuff"];
-const teams = ["Recruitment", "Research Team", "Ops", "CEIP Program Management", "Special projects" ];
+const teams = ["Recruitment", "Research Team", "Ops", "CEIP Program Management", "MEL", "Philanthropy" ];
 shuffleArray(teams);
 const bunnyIndex = 1 + Math.floor(Math.random() * (teams.length - 1));
 teams.splice(bunnyIndex, 0, "Bunny Break");
@@ -33,7 +33,8 @@ const teamIconMap = {
     "Research Team": "icon-research",
     "Ops": "icon-ops",
     "CEIP Program Management": "icon-ceip",
-    "Special projects": "icon-special",
+    "MEL": "icon-mel",
+    "Philanthropy": "icon-philanthropy",
     "Bunny Break": "icon-bunny",
     "The End!": "icon-end"
 };
@@ -54,7 +55,7 @@ document.body.style.transition = 'background-color 2s ease'; // Smooth transitio
 let currentTime = 0;
 let timerInterval = null;
 let timePerTeam = 2 * 60; // [s] default time per team
-const teamDurations = {}; // [s] custom durations for specific teams
+const teamDurations = { "MEL": 60, "Philanthropy": 60 }; // [s] custom durations for specific teams
 let timeYellow = 30; // [s] time when screen turns yellow
 let timeRed = 5; // [s] time when screen turns red (screamy face)
 
