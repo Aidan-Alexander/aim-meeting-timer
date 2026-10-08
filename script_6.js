@@ -77,6 +77,7 @@ console.log(weeklyPrompt);
 
 nextTeamButton.addEventListener('click', () => {
     if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
 
     // Hide start screen on first click
     const startScreen = document.getElementById('startScreen');
@@ -88,6 +89,8 @@ nextTeamButton.addEventListener('click', () => {
     currentTeamIndex = (currentTeamIndex + 1) % shuffledTeams.length;
 
     bunnyGifEl.style.display = 'none';
+    pauseButton.style.display = 'none';
+    setPaused(false);
 
     if (team === "Bunny Break") {
         updateTeamName("Cute Bunny GIF of the Week");
@@ -105,26 +108,63 @@ nextTeamButton.addEventListener('click', () => {
         currentTime = teamDurations[team] !== undefined ? teamDurations[team] : timePerTeam;
         updateTimerDisplay(currentTime);
         setBodyBackgroundColor('green'); // Reset to green
+        startTicking();
+    }
+});
 
-        timerInterval = setInterval(() => {
-            currentTime--;
-            updateTimerDisplay(currentTime);
+// pause button -----------------------
 
-            // Update color based on remaining time
-            if (currentTime <= timeRed ) {
-                setBodyBackgroundColor('red');
-            } else if (currentTime <= timeYellow ) {
-                setBodyBackgroundColor('yellow');
-                // document.getElementById('timerSound').play();
-            }
+const pauseButton = document.getElementById('pauseTimer');
+let paused = false;
 
-            if (currentTime <= 0) {
-                clearInterval(timerInterval);
-                // Play the sound
-                document.getElementById('timerSound').play();
-                //alert("Time's up for this team!");
-            }
-        }, 1000);
+function startTicking() {
+    setPaused(false);
+    pauseButton.style.display = 'block';
+    timerInterval = setInterval(() => {
+        currentTime--;
+        updateTimerDisplay(currentTime);
+
+        // Update color based on remaining time
+        if (currentTime <= timeRed ) {
+            setBodyBackgroundColor('red');
+        } else if (currentTime <= timeYellow ) {
+            setBodyBackgroundColor('yellow');
+            // document.getElementById('timerSound').play();
+        }
+
+        if (currentTime <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            pauseButton.style.display = 'none';
+            // Play the sound
+            document.getElementById('timerSound').play();
+            //alert("Time's up for this team!");
+        }
+    }, 1000);
+}
+
+function setPaused(isPaused) {
+    paused = isPaused;
+    document.body.classList.toggle('paused', paused);
+    pauseButton.innerHTML = paused ? '&#x25B6;&#xFE0E;' : '&#x23F8;&#xFE0E;';
+    pauseButton.title = paused ? 'Resume (space)' : 'Pause (space)';
+}
+
+function togglePause() {
+    if (paused) {
+        startTicking();
+    } else if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        setPaused(true);
+    }
+}
+
+pauseButton.addEventListener('click', togglePause);
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && pauseButton.style.display !== 'none') {
+        e.preventDefault();
+        togglePause();
     }
 });
 
