@@ -15,8 +15,8 @@ let currentTeamIndex = 0;
 // const teams = ["Outreach", "Vetting", "Research Team", "Ops", "Charity Entrepreneurship", "AIM Grantmaking", "AIM Research Program","AIM Effective Giving","AIM Founding To Give","Hiring/Chief of Staff Stuff"];
 const teams = ["Recruitment", "Research Team", "Ops", "CEIP Program Management", "MEL", "Philanthropy" ];
 shuffleArray(teams);
-const bunnyIndex = 1 + Math.floor(Math.random() * (teams.length - 1));
-teams.splice(bunnyIndex, 0, "Bunny Break");
+const pandaIndex = 1 + Math.floor(Math.random() * (teams.length - 1));
+teams.splice(pandaIndex, 0, "Red Panda Break");
 const shuffledTeams = [...teams, "The End!"];
 
 console.log(shuffledTeams);
@@ -35,12 +35,12 @@ const teamIconMap = {
     "CEIP Program Management": "icon-ceip",
     "MEL": "icon-mel",
     "Philanthropy": "icon-philanthropy",
-    "Bunny Break": "icon-bunny",
+    "Red Panda Break": "icon-redpanda",
     "The End!": "icon-end"
 };
 
-const bunnyGifEl = document.getElementById('bunnyGif');
-const bunnyImgEl = document.getElementById('bunnyImg');
+const pandaGifEl = document.getElementById('pandaGif');
+const pandaImgEl = document.getElementById('pandaImg');
 
 function showTeamIcon(teamName) {
     document.querySelectorAll('.team-icon').forEach(el => el.classList.remove('active'));
@@ -88,17 +88,17 @@ nextTeamButton.addEventListener('click', () => {
     showTeamIcon(team);
     currentTeamIndex = (currentTeamIndex + 1) % shuffledTeams.length;
 
-    bunnyGifEl.style.display = 'none';
+    pandaGifEl.style.display = 'none';
     pauseButton.style.display = 'none';
     setPaused(false);
 
-    if (team === "Bunny Break") {
-        updateTeamName("Cute Bunny GIF of the Week");
+    if (team === "Red Panda Break") {
+        updateTeamName("Cute Red Panda GIF of the Week");
         timerElement.style.display = 'none';
         nextTeamButton.textContent = 'Back to Work';
-        setBodyBackgroundColor('bunny');
-        bunnyGifEl.style.display = 'block';
-        loadRandomBunny();
+        setBodyBackgroundColor('panda');
+        pandaGifEl.style.display = 'block';
+        loadRandomPanda();
     } else if (team === "The End!") {
         timerElement.style.display = 'none';
         nextTeamButton.textContent = 'Start Again';
@@ -185,25 +185,71 @@ function setWeeklyPrompt(weeklyPrompt) {
 }
 
 function setBodyBackgroundColor(color) {
-    document.body.classList.remove('start', 'green', 'yellow', 'red', 'bunny');
+    document.body.classList.remove('start', 'green', 'yellow', 'red', 'panda');
     document.body.classList.add(color);
 }
 
-function loadRandomBunny() {
-    bunnyImgEl.src = '';
-    fetch('https://api.bunnies.io/v2/loop/random/?media=gif')
-        .then(r => r.json())
+// Red panda gifs come from GIPHY. This is a client-side key (visible in the
+// page source by design, rate-limited per key, not a secret) created at
+// developers.giphy.com.
+const GIPHY_API_KEY = 'PpyiwtuliHaL9LNjgZr7hpeIKD8JyNHJ';
+
+// Giphy's "random gif with tag" endpoint matches loosely (it served cartoon
+// pandas and a Khan Academy clip when tested), so we search instead: fetch a
+// page of search results, shuffle it, and work through it. "Another Red Panda"
+// only calls the API again once the page is used up.
+let pandaQueue = [];
+
+function loadRandomPanda() {
+    pandaImgEl.src = '';
+    pandaImgEl.alt = 'Loading a red panda...';
+    if (pandaQueue.length) {
+        showPanda(pandaQueue.pop());
+        return;
+    }
+    const offset = Math.floor(Math.random() * 25); // pool = top 50 results; deeper pages drift off topic
+    const url = 'https://api.giphy.com/v1/gifs/search'
+        + '?api_key=' + encodeURIComponent(GIPHY_API_KEY)
+        + '&q=red+panda&limit=25&offset=' + offset + '&rating=g&lang=en';
+    fetch(url)
+        .then(r => r.ok ? r.json() : Promise.reject(new Error('GIPHY HTTP ' + r.status)))
         .then(data => {
-            if (data?.media?.gif) {
-                bunnyImgEl.src = data.media.gif;
-            } else {
-                loadRandomBunny();
-            }
+            const gifs = (data?.data ?? [])
+                .map(g => g.images?.downsized_medium?.url || g.images?.original?.url)
+                .filter(Boolean);
+            if (!gifs.length) throw new Error('GIPHY returned no gifs');
+            shuffleArray(gifs);
+            pandaQueue = gifs;
+            showPanda(pandaQueue.pop());
         })
-        .catch(() => loadRandomBunny());
+        .catch(err => {
+            console.warn('GIPHY failed, falling back to a photo:', err);
+            loadFallbackPanda();
+        });
 }
 
-document.getElementById('newBunny').addEventListener('click', loadRandomBunny);
+function showPanda(url) {
+    pandaImgEl.src = url;
+    pandaImgEl.alt = 'Cute red panda';
+}
+
+// Fallback when GIPHY is unavailable (missing key, rate limit, outage): a
+// random red panda photo from some-random-api, which needs no key.
+function loadFallbackPanda() {
+    fetch('https://some-random-api.com/animal/red_panda')
+        .then(r => r.json())
+        .then(data => {
+            if (data?.image) {
+                pandaImgEl.src = data.image;
+                pandaImgEl.alt = 'Cute red panda';
+            } else {
+                pandaImgEl.alt = 'No red panda this week, sorry';
+            }
+        })
+        .catch(() => { pandaImgEl.alt = 'No red panda this week, sorry'; });
+}
+
+document.getElementById('newPanda').addEventListener('click', loadRandomPanda);
 
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));

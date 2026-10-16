@@ -112,7 +112,7 @@ body, html {
     background-color: rgb(243, 78, 89);
 }
 
-.bunny {
+.panda {
     background-color: rgb(200, 160, 220);
 }
 
@@ -203,18 +203,18 @@ body, html {
     height: 200px;
 }
 
-/* Bunny gif slide */
-#bunnyGif {
+/* Red panda gif slide */
+#pandaGif {
     margin: 20px auto;
     text-align: center;
 }
-#bunnyGif img {
+#pandaGif img {
     max-width: 480px;
     max-height: 360px;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
-#newBunny {
+#newPanda {
     margin-top: 16px;
     background-color: rgba(255,255,255,0.3);
     color: white;
@@ -227,8 +227,13 @@ body, html {
     font-weight: 700;
     transition: background-color 0.3s;
 }
-#newBunny:hover {
+#newPanda:hover {
     background-color: rgba(255,255,255,0.5);
+}
+.giphy-credit {
+    margin-top: 10px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
 }
 
 /* Farm animals - peeking from edges */
