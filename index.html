@@ -69,6 +69,37 @@
             </div>
             <div class="giphy-credit">Powered by GIPHY</div>
         </div>
+        <!-- #adventure mode: village + Main Stage (see adventure.js) -->
+        <div id="adventureBox" style="display:none;">
+            <div id="villagePanel">
+                <div class="village-wrap">
+                    <canvas id="adventureCanvas" width="704" height="416"></canvas>
+                    <div id="advDlg"><div class="who" id="advDlgWho"></div><div class="say" id="advDlgSay"></div><div class="more" id="advDlgMore"></div></div>
+                </div>
+                <div id="adventureHint" class="adv-hint"></div>
+            </div>
+            <div id="djPanel" style="display:none;">
+                <button id="djBack" class="break-btn">← back to the village</button>
+                <p class="dj-eyebrow">Main Stage</p>
+                <p class="dj-lede" id="djLede"></p>
+                <canvas id="djStage"></canvas>
+                <div class="deck">
+                    <button class="tbtn" id="djPlay">▶ Play the set</button>
+                    <button class="tbtn cyan" id="djDrop">DROP IT</button>
+                    <div class="tracks" id="djTracks"><span class="tlbl">TRACKS</span></div>
+                    <div class="knob"><label for="djBpm">Tempo <span id="djBpmv">132</span></label><input type="range" id="djBpm" min="118" max="150" value="132"></div>
+                    <div class="knob"><label for="djFilt">Filter</label><input type="range" id="djFilt" min="0" max="100" value="100"></div>
+                    <div class="knob"><label for="djDly">Reverb / delay</label><input type="range" id="djDly" min="0" max="100" value="25"></div>
+                    <div class="knob"><label for="djCut">Acid cutoff</label><input type="range" id="djCut" min="0" max="100" value="40"></div>
+                    <div class="knob"><label for="djRes">Squelch</label><input type="range" id="djRes" min="0" max="100" value="55"></div>
+                    <div class="knob"><label for="djHatd">Hat chaos</label><input type="range" id="djHatd" min="0" max="100" value="30"></div>
+                    <div class="knob"><label for="djDrive">Drive</label><input type="range" id="djDrive" min="0" max="100" value="35"></div>
+                </div>
+                <p id="djPhase"></p>
+            </div>
+            <div><button id="adventureSpinAgain" class="break-btn">Spin Again</button></div>
+        </div>
+        <div id="djShout"></div>
         <div id="timer" class="timer"></div>
         <div id="weeklyPrompt"></div>
     </div>
@@ -110,6 +141,7 @@
     </div>
 
     <script src="weekly_prompts_5.js"></script>
+    <script src="adventure.js"></script>
     <script src="script_6.js"></script>
 
 

@@ -85,6 +85,7 @@ nextTeamButton.addEventListener('click', () => {
     currentTeamIndex = (currentTeamIndex + 1) % shuffledTeams.length;
 
     animalSlideActive = false;
+    stopAdventure();
     wheelBox.style.display = 'none';
     animalGifEl.style.display = 'none';
     pauseButton.style.display = 'none';
@@ -196,7 +197,7 @@ const GIPHY_API_KEY = 'PpyiwtuliHaL9LNjgZr7hpeIKD8JyNHJ';
 // GIPHY search term; plain names drift into sports teams and cartoons, so some
 // are qualified. fallback: some-random-api animal for a photo if GIPHY fails,
 // null where it has none.
-const WHEEL_ANIMALS = [
+const ANIMALS = [
     { name: 'Rabbit',    emoji: '🐰', query: 'cute bunny',   fallback: null },
     { name: 'Red Panda', emoji: '🦝', query: 'red panda',    fallback: 'red_panda' },
     { name: 'Duck',      emoji: '🦆', query: 'duckling',     fallback: null },
@@ -209,6 +210,16 @@ const WHEEL_ANIMALS = [
 ];
 const WHEEL_COLORS = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1'];
 
+// One-off joke modes, switched on with a URL hash and combinable with a comma,
+// e.g. aimteammeeting.netlify.app/#nematodes,adventure
+//   #nematodes  every wedge on the wheel is a nematode
+//   #adventure  the winner starts a top-down adventure game instead of gifs
+const MODES = new Set(location.hash.replace(/^#/, '').toLowerCase().split(/[,+\s]+/).filter(Boolean));
+window.addEventListener('hashchange', () => location.reload());
+const WHEEL_ANIMALS = MODES.has('nematodes')
+    ? ANIMALS.map(() => ANIMALS.find(a => a.name === 'Nematode'))
+    : ANIMALS;
+
 const wheelBox = document.getElementById('wheelBox');
 const wheelRotor = document.getElementById('wheelRotor');
 const spinButton = document.getElementById('spinWheel');
@@ -217,6 +228,8 @@ const animalGifEl = document.getElementById('animalGif');
 const animalImgEl = document.getElementById('animalImg');
 const anotherButton = document.getElementById('anotherGif');
 const spinAgainButton = document.getElementById('spinAgain');
+const adventureBox = document.getElementById('adventureBox');
+const adventureSpinAgain = document.getElementById('adventureSpinAgain');
 
 // Draw the wheel: one wedge per animal, clockwise from the top, emoji facing outwards.
 function buildWheel() {
@@ -268,7 +281,7 @@ function spinWheel() {
     const index = Math.floor(Math.random() * n);
     currentAnimal = WHEEL_ANIMALS[index];
     gifQueue = [];
-    loadGifs(currentAnimal);    // fetch while the wheel is still spinning
+    if (!MODES.has('adventure')) loadGifs(currentAnimal);    // fetch while the wheel is still spinning
 
     // Pick the winner first, then rotate so its wedge ends under the pointer at
     // the top (a little off-centre so it doesn't always land the same way),
@@ -299,6 +312,12 @@ function revealAnimal() {
     if (!animalSlideActive) return;
     revealed = true;
     wheelBox.style.display = 'none';
+    if (MODES.has('adventure') && window.Adventure) {
+        updateTeamName(`${currentAnimal.name} Adventure`);
+        adventureBox.style.display = 'block';
+        Adventure.start(currentAnimal, ANIMALS);
+        return;
+    }
     updateTeamName(`Cute ${currentAnimal.name} GIF of the Week`);
     winnerIcon.querySelector('span').textContent = currentAnimal.emoji;
     winnerIcon.classList.add('active');
@@ -376,10 +395,18 @@ function noGif(animal) {
 
 spinButton.addEventListener('click', spinWheel);
 anotherButton.addEventListener('click', showNextGif);
-spinAgainButton.addEventListener('click', () => {
+function spinAgain() {
+    stopAdventure();
     winnerIcon.classList.remove('active');
     showWheel();
-});
+}
+spinAgainButton.addEventListener('click', spinAgain);
+adventureSpinAgain.addEventListener('click', spinAgain);
+
+function stopAdventure() {
+    if (window.Adventure) Adventure.stop();
+    adventureBox.style.display = 'none';
+}
 
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
