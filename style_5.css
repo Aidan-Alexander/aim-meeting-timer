@@ -293,204 +293,280 @@ body, html {
     color: rgba(255,255,255,0.7);
 }
 
-/* #adventure mode: the village canvas, its dialogue box, and the Main Stage */
+/* #adventure mode: a full-screen night village and Main Stage, after Twizl */
+#teamName.long {
+    font-size: 56px;
+    max-width: 1100px;
+    text-align: center;
+}
 #adventureBox {
     margin: 10px auto 0;
     text-align: center;
 }
-.village-wrap {
-    position: relative;
-    width: 704px;
-    height: 416px;
-    margin: 0 auto;
-}
-#adventureCanvas {
-    display: block;
-    width: 704px;
-    height: 416px;
-    border-radius: 12px;
-    background: #58a84f;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-}
-#advDlg {
-    position: absolute;
-    left: 50%;
-    bottom: 14px;
-    transform: translateX(-50%);
-    width: 560px;
-    box-sizing: border-box;
-    background: #f6efdd;
-    color: #1d1a14;
-    border: 3px double #8a7b5a;
-    border-radius: 12px;
-    padding: 10px 14px;
-    text-align: left;
-    text-shadow: none;
+#adventureScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
     display: none;
+    background: #07091a;
+    color: #ece6da;
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 400;
+    text-shadow: none;
+    line-height: 1.5;
+}
+#adventureScreen.on {
+    display: block;
+}
+#adventureScreen button {
+    font: inherit;
+    color: inherit;
     cursor: pointer;
 }
-#advDlg.on {
+.adv-screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+}
+.adv-screen.on {
     display: block;
 }
-#advDlg .who {
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #6b5d3c;
+#advMap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
 }
-#advDlg .say {
-    font-size: 20px;
-    font-weight: 500;
-    line-height: 1.35;
-    min-height: 2.7em;
+.adv-hud {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    right: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    pointer-events: none;
 }
-#advDlg .more {
-    font-size: 12px;
-    color: #6b5d3c;
-    text-align: right;
-    letter-spacing: 0.08em;
-    min-height: 1.2em;
+.adv-town {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    color: #f3e9c6;
+    font-size: 1.05rem;
+    text-shadow: 0 2px 8px #000;
 }
 .adv-hint {
-    margin-top: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.85);
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: #a9a397;
+    letter-spacing: 0.06em;
+    text-align: right;
+    text-shadow: 0 1px 4px #000;
 }
-#djPanel {
-    width: 760px;
-    box-sizing: border-box;
-    margin: 0 auto;
-    padding: 16px 20px 18px;
-    border-radius: 16px;
+#advBubble {
+    position: absolute;
+    background: #f1e7cf;
+    color: #1a1a1a;
+    padding: 7px 11px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    max-width: 30ch;
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+    font-style: italic;
+    transform: translate(-20%, -100%);
+}
+#advBubble b {
+    display: block;
+    font-style: normal;
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6b5d3c;
+    margin-bottom: 2px;
+}
+#advBubble.show {
+    opacity: 1;
+}
+#advBubble::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    bottom: -8px;
+    border: 8px solid transparent;
+    border-top-color: #f1e7cf;
+    border-bottom: 0;
+}
+#advClose {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 5;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(0,0,0,0.45);
+    color: #f3e9c6;
+    font-size: 18px;
+    line-height: 1;
+}
+#advClose:hover {
+    background: #f3e9c6;
+    color: #07091a;
+}
+.adv-wing {
+    position: absolute;
+    inset: 0;
+    display: none;
+    overflow: auto;
     background: radial-gradient(ellipse at 50% 100%, #2a0a3a, #05020a 70%);
-    color: #ece6da;
-    text-align: left;
-    text-shadow: none;
-    font-weight: 500;
+    padding: 16px 16px 48px;
+    box-sizing: border-box;
 }
-#djPanel .break-btn {
-    margin-top: 0;
+.adv-wing.on {
+    display: block;
 }
-.dj-eyebrow {
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 12px;
+.adv-inner {
+    max-width: 980px;
+    margin: 0 auto;
+}
+.adv-back {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-bottom: 22px;
+}
+.adv-back:hover {
+    border-color: #f3e9c6;
+}
+.adv-eyebrow {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.74rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #a9a397;
-    margin: 12px 0 2px;
+    margin: 0;
 }
-.dj-lede {
-    color: #a9a397;
-    font-size: 16px;
-    margin: 0 0 10px;
-    max-width: 62ch;
+.adv-wing h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(1.9rem, 4.5vw, 3.2rem);
+    font-weight: 500;
+    margin: 6px 0 10px;
+    color: #ece6da;
 }
 #djStage {
     width: 100%;
-    height: 380px;
+    height: min(60vh, 520px);
+    min-height: 300px;
     display: block;
     border-radius: 14px;
     background: #000;
     border: 1px solid rgba(255,255,255,0.07);
-    margin: 6px 0 14px;
+    margin: 18px 0;
 }
-.deck {
+#adventureScreen .deck {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 14px 20px;
+    gap: 16px 22px;
     align-items: end;
+    margin-top: 18px;
 }
-.knob label {
+#adventureScreen .knob label {
     display: block;
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 11px;
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #a9a397;
     margin-bottom: 6px;
 }
-.knob input[type=range] {
+#adventureScreen .knob input[type=range] {
     width: 100%;
     accent-color: #ff2fa0;
 }
-.tbtn {
+#adventureScreen .tbtn {
     border: 1px solid #ff2fa0;
     background: transparent;
     border-radius: 10px;
     padding: 12px 14px;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1rem;
     color: #ff2fa0;
-    cursor: pointer;
     transition: 0.15s;
 }
-.tbtn:hover {
+#adventureScreen .tbtn:hover {
     background: #ff2fa0;
     color: #fff;
 }
-.tbtn.cyan {
+#adventureScreen .tbtn.cyan {
     border-color: #35f0ff;
     color: #35f0ff;
 }
-.tbtn.cyan:hover {
+#adventureScreen .tbtn.cyan:hover {
     background: #35f0ff;
     color: #000;
 }
-.tbtn.on {
+#adventureScreen .tbtn.on {
     background: #ff2fa0;
     color: #fff;
 }
-.tracks {
+#adventureScreen .tracks {
     grid-column: 1 / -1;
     display: flex;
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
 }
-.tracks .tlbl {
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 11px;
+#adventureScreen .tracks .tlbl {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.7rem;
     letter-spacing: 0.12em;
     color: #a9a397;
     margin-right: 4px;
 }
-.tracks button {
+#adventureScreen .tracks button {
     border: 1px solid #ff2fa0;
     background: transparent;
     color: #ff2fa0;
     border-radius: 999px;
     padding: 8px 14px;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 0.95rem;
     transition: 0.15s;
 }
-.tracks button:hover {
+#adventureScreen .tracks button:hover {
     background: rgba(255,47,160,0.2);
 }
-.tracks button.on {
+#adventureScreen .tracks button.on {
     background: #ff2fa0;
     color: #fff;
     box-shadow: 0 0 14px rgba(255,47,160,0.53);
 }
 #djPhase {
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 13px;
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.8rem;
     color: #35f0ff;
     letter-spacing: 0.1em;
-    margin: 12px 0 0;
+    margin: 14px 0 0;
     min-height: 1.4em;
 }
 #djShout {
-    position: fixed;
+    position: absolute;
     inset: 0;
     display: grid;
     place-items: center;
+    font-family: "Fraunces", Georgia, serif;
     font-size: clamp(2rem, 9vw, 6rem);
-    font-weight: 700;
+    font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.02em;
     color: #fff;
@@ -498,7 +574,6 @@ body, html {
     pointer-events: none;
     mix-blend-mode: difference;
     transition: opacity 0.1s;
-    z-index: 30;
 }
 #djShout.on {
     opacity: 1;

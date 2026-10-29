@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wdth,wght@75..125,300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style_5.css">
 </head>
 <body class="start">
@@ -69,37 +70,13 @@
             </div>
             <div class="giphy-credit">Powered by GIPHY</div>
         </div>
-        <!-- #adventure mode: village + Main Stage (see adventure.js) -->
+        <!-- #adventure mode: shown on the slide behind the full-screen game (see adventure.js) -->
         <div id="adventureBox" style="display:none;">
-            <div id="villagePanel">
-                <div class="village-wrap">
-                    <canvas id="adventureCanvas" width="704" height="416"></canvas>
-                    <div id="advDlg"><div class="who" id="advDlgWho"></div><div class="say" id="advDlgSay"></div><div class="more" id="advDlgMore"></div></div>
-                </div>
-                <div id="adventureHint" class="adv-hint"></div>
+            <div>
+                <button id="adventurePlayAgain" class="break-btn">Back into the village</button>
+                <button id="adventureSpinAgain" class="break-btn">Spin Again</button>
             </div>
-            <div id="djPanel" style="display:none;">
-                <button id="djBack" class="break-btn">← back to the village</button>
-                <p class="dj-eyebrow">Main Stage</p>
-                <p class="dj-lede" id="djLede"></p>
-                <canvas id="djStage"></canvas>
-                <div class="deck">
-                    <button class="tbtn" id="djPlay">▶ Play the set</button>
-                    <button class="tbtn cyan" id="djDrop">DROP IT</button>
-                    <div class="tracks" id="djTracks"><span class="tlbl">TRACKS</span></div>
-                    <div class="knob"><label for="djBpm">Tempo <span id="djBpmv">132</span></label><input type="range" id="djBpm" min="118" max="150" value="132"></div>
-                    <div class="knob"><label for="djFilt">Filter</label><input type="range" id="djFilt" min="0" max="100" value="100"></div>
-                    <div class="knob"><label for="djDly">Reverb / delay</label><input type="range" id="djDly" min="0" max="100" value="25"></div>
-                    <div class="knob"><label for="djCut">Acid cutoff</label><input type="range" id="djCut" min="0" max="100" value="40"></div>
-                    <div class="knob"><label for="djRes">Squelch</label><input type="range" id="djRes" min="0" max="100" value="55"></div>
-                    <div class="knob"><label for="djHatd">Hat chaos</label><input type="range" id="djHatd" min="0" max="100" value="30"></div>
-                    <div class="knob"><label for="djDrive">Drive</label><input type="range" id="djDrive" min="0" max="100" value="35"></div>
-                </div>
-                <p id="djPhase"></p>
-            </div>
-            <div><button id="adventureSpinAgain" class="break-btn">Spin Again</button></div>
         </div>
-        <div id="djShout"></div>
         <div id="timer" class="timer"></div>
         <div id="weeklyPrompt"></div>
     </div>
@@ -138,6 +115,39 @@
         <span class="heart h1">&#x2764;</span>
         <span class="heart h2">&#x2764;</span>
         <span class="heart h3">&#x2764;</span>
+    </div>
+
+    <!-- #adventure mode: the full-screen village and Main Stage, opened by adventure.js -->
+    <div id="adventureScreen">
+        <section id="advWorld" class="adv-screen">
+            <canvas id="advMap"></canvas>
+            <div class="adv-hud">
+                <div class="adv-town" id="advTown">AIM</div>
+                <div class="adv-hint">arrow keys or WASD to walk<br>walk up to anyone · walk into the Main Stage to go in</div>
+            </div>
+            <div id="advBubble"></div>
+        </section>
+        <section id="advTent" class="adv-wing"><div class="adv-inner">
+            <button class="adv-back" id="djBack">← back to the village</button>
+            <p class="adv-eyebrow">Main Stage</p>
+            <h2>Main Stage</h2>
+            <canvas id="djStage"></canvas>
+            <div class="deck">
+                <button class="tbtn" id="djPlay">▶ Play the set</button>
+                <button class="tbtn cyan" id="djDrop">DROP IT</button>
+                <div class="tracks" id="djTracks"><span class="tlbl">TRACKS</span></div>
+                <div class="knob"><label for="djBpm">Tempo <span id="djBpmv">132</span></label><input type="range" id="djBpm" min="118" max="150" value="132"></div>
+                <div class="knob"><label for="djFilt">Filter</label><input type="range" id="djFilt" min="0" max="100" value="100"></div>
+                <div class="knob"><label for="djDly">Reverb / delay</label><input type="range" id="djDly" min="0" max="100" value="25"></div>
+                <div class="knob"><label for="djCut">Acid cutoff</label><input type="range" id="djCut" min="0" max="100" value="40"></div>
+                <div class="knob"><label for="djRes">Squelch</label><input type="range" id="djRes" min="0" max="100" value="55"></div>
+                <div class="knob"><label for="djHatd">Hat chaos</label><input type="range" id="djHatd" min="0" max="100" value="30"></div>
+                <div class="knob"><label for="djDrive">Drive</label><input type="range" id="djDrive" min="0" max="100" value="35"></div>
+            </div>
+            <p id="djPhase"></p>
+        </div></section>
+        <button id="advClose" title="Leave the game (Esc)" aria-label="Leave the game">✕</button>
+        <div id="djShout"></div>
     </div>
 
     <script src="weekly_prompts_5.js"></script>

@@ -86,6 +86,7 @@ nextTeamButton.addEventListener('click', () => {
 
     animalSlideActive = false;
     stopAdventure();
+    teamNameElement.classList.remove('long');
     wheelBox.style.display = 'none';
     animalGifEl.style.display = 'none';
     pauseButton.style.display = 'none';
@@ -230,6 +231,7 @@ const anotherButton = document.getElementById('anotherGif');
 const spinAgainButton = document.getElementById('spinAgain');
 const adventureBox = document.getElementById('adventureBox');
 const adventureSpinAgain = document.getElementById('adventureSpinAgain');
+const adventurePlayAgain = document.getElementById('adventurePlayAgain');
 
 // Draw the wheel: one wedge per animal, clockwise from the top, emoji facing outwards.
 function buildWheel() {
@@ -266,7 +268,12 @@ function showWheel() {
     animalSlideActive = true;
     revealed = false;
     wantGif = false;
-    updateTeamName('Spin the Wheel!');
+    if (MODES.has('nematodes')) {
+        updateTeamName('This week we\'re making the wheel more representative');
+        teamNameElement.classList.add('long');
+    } else {
+        updateTeamName('Spin the Wheel!');
+    }
     animalGifEl.style.display = 'none';
     wheelBox.style.display = 'block';
     spinButton.disabled = false;
@@ -312,8 +319,11 @@ function revealAnimal() {
     if (!animalSlideActive) return;
     revealed = true;
     wheelBox.style.display = 'none';
+    teamNameElement.classList.remove('long');
     if (MODES.has('adventure') && window.Adventure) {
         updateTeamName(`${currentAnimal.name} Adventure`);
+        winnerIcon.querySelector('span').textContent = currentAnimal.emoji;
+        winnerIcon.classList.add('active');
         adventureBox.style.display = 'block';
         Adventure.start(currentAnimal, ANIMALS);
         return;
@@ -402,6 +412,9 @@ function spinAgain() {
 }
 spinAgainButton.addEventListener('click', spinAgain);
 adventureSpinAgain.addEventListener('click', spinAgain);
+adventurePlayAgain.addEventListener('click', () => {
+    if (currentAnimal && window.Adventure) Adventure.start(currentAnimal, ANIMALS);
+});
 
 function stopAdventure() {
     if (window.Adventure) Adventure.stop();
