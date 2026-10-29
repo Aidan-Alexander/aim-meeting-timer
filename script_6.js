@@ -15,8 +15,8 @@ let currentTeamIndex = 0;
 // const teams = ["Outreach", "Vetting", "Research Team", "Ops", "Charity Entrepreneurship", "AIM Grantmaking", "AIM Research Program","AIM Effective Giving","AIM Founding To Give","Hiring/Chief of Staff Stuff"];
 const teams = ["Recruitment", "Research Team", "Ops", "CEIP Program Management", "MEL", "Philanthropy" ];
 shuffleArray(teams);
-const pandaIndex = 1 + Math.floor(Math.random() * (teams.length - 1));
-teams.splice(pandaIndex, 0, "Red Panda Break");
+const breakIndex = 1 + Math.floor(Math.random() * (teams.length - 1));
+teams.splice(breakIndex, 0, "Animal Break");
 const shuffledTeams = [...teams, "The End!"];
 
 console.log(shuffledTeams);
@@ -35,12 +35,8 @@ const teamIconMap = {
     "CEIP Program Management": "icon-ceip",
     "MEL": "icon-mel",
     "Philanthropy": "icon-philanthropy",
-    "Red Panda Break": "icon-redpanda",
     "The End!": "icon-end"
 };
-
-const pandaGifEl = document.getElementById('pandaGif');
-const pandaImgEl = document.getElementById('pandaImg');
 
 function showTeamIcon(teamName) {
     document.querySelectorAll('.team-icon').forEach(el => el.classList.remove('active'));
@@ -88,17 +84,17 @@ nextTeamButton.addEventListener('click', () => {
     showTeamIcon(team);
     currentTeamIndex = (currentTeamIndex + 1) % shuffledTeams.length;
 
-    pandaGifEl.style.display = 'none';
+    animalSlideActive = false;
+    wheelBox.style.display = 'none';
+    animalGifEl.style.display = 'none';
     pauseButton.style.display = 'none';
     setPaused(false);
 
-    if (team === "Red Panda Break") {
-        updateTeamName("Cute Red Panda GIF of the Week");
+    if (team === "Animal Break") {
         timerElement.style.display = 'none';
         nextTeamButton.textContent = 'Back to Work';
-        setBodyBackgroundColor('panda');
-        pandaGifEl.style.display = 'block';
-        loadRandomPanda();
+        setBodyBackgroundColor('animal');
+        showWheel();
     } else if (team === "The End!") {
         timerElement.style.display = 'none';
         nextTeamButton.textContent = 'Start Again';
@@ -185,71 +181,205 @@ function setWeeklyPrompt(weeklyPrompt) {
 }
 
 function setBodyBackgroundColor(color) {
-    document.body.classList.remove('start', 'green', 'yellow', 'red', 'panda');
+    document.body.classList.remove('start', 'green', 'yellow', 'red', 'animal');
     document.body.classList.add(color);
 }
 
-// Red panda gifs come from GIPHY. This is a client-side key (visible in the
-// page source by design, rate-limited per key, not a secret) created at
-// developers.giphy.com.
+// Animal break ---------------------------------------------------------------
+// A wheel picks the animal, then the gifs come from GIPHY search.
+// GIPHY_API_KEY is a client-side key (visible in the page source by design,
+// rate-limited per key, not a secret) created at developers.giphy.com.
 const GIPHY_API_KEY = 'PpyiwtuliHaL9LNjgZr7hpeIKD8JyNHJ';
 
-// Giphy's "random gif with tag" endpoint matches loosely (it served cartoon
-// pandas and a Khan Academy clip when tested), so we search instead: fetch a
-// page of search results, shuffle it, and work through it. "Another Red Panda"
-// only calls the API again once the page is used up.
-let pandaQueue = [];
+// name: used in the title and button. emoji: wheel wedge and slide icon (no
+// red panda or capybara emoji exist, so raccoon and beaver stand in). query:
+// GIPHY search term; plain names drift into sports teams and cartoons, so some
+// are qualified. fallback: some-random-api animal for a photo if GIPHY fails,
+// null where it has none.
+const WHEEL_ANIMALS = [
+    { name: 'Rabbit',    emoji: '🐰', query: 'cute bunny',   fallback: null },
+    { name: 'Red Panda', emoji: '🦝', query: 'red panda',    fallback: 'red_panda' },
+    { name: 'Duck',      emoji: '🦆', query: 'duckling',     fallback: null },
+    { name: 'Cat',       emoji: '🐱', query: 'cute cat',     fallback: 'cat' },
+    { name: 'Dog',       emoji: '🐶', query: 'cute dog',     fallback: 'dog' },
+    { name: 'Otter',     emoji: '🦦', query: 'sea otter',    fallback: null },
+    { name: 'Capybara',  emoji: '🦫', query: 'capybara',     fallback: null },
+    { name: 'Penguin',   emoji: '🐧', query: 'baby penguin', fallback: null },
+    { name: 'Nematode',  emoji: '🪱', query: 'nematode',     fallback: null },
+];
+const WHEEL_COLORS = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1'];
 
-function loadRandomPanda() {
-    pandaImgEl.src = '';
-    pandaImgEl.alt = 'Loading a red panda...';
-    if (pandaQueue.length) {
-        showPanda(pandaQueue.pop());
+const wheelBox = document.getElementById('wheelBox');
+const wheelRotor = document.getElementById('wheelRotor');
+const spinButton = document.getElementById('spinWheel');
+const winnerIcon = document.getElementById('icon-winner');
+const animalGifEl = document.getElementById('animalGif');
+const animalImgEl = document.getElementById('animalImg');
+const anotherButton = document.getElementById('anotherGif');
+const spinAgainButton = document.getElementById('spinAgain');
+
+// Draw the wheel: one wedge per animal, clockwise from the top, emoji facing outwards.
+function buildWheel() {
+    const n = WHEEL_ANIMALS.length;
+    const cx = 160, cy = 160, r = 150, step = 360 / n;
+    const pt = (deg, rad) => {
+        const a = (deg - 90) * Math.PI / 180;   // 0deg = top, increasing clockwise
+        return [(cx + rad * Math.cos(a)).toFixed(2), (cy + rad * Math.sin(a)).toFixed(2)];
+    };
+    let svg = '<svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">';
+    WHEEL_ANIMALS.forEach((animal, i) => {
+        const a0 = i * step, a1 = a0 + step, mid = a0 + step / 2;
+        const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r), [tx, ty] = pt(mid, r * 0.68);
+        svg += `<path d="M${cx} ${cy} L${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1} Z" fill="${WHEEL_COLORS[i % WHEEL_COLORS.length]}" stroke="white" stroke-width="3"/>`;
+        svg += `<text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" transform="rotate(${mid} ${tx} ${ty})">${animal.emoji}</text>`;
+    });
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="white" stroke-width="6"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="20" fill="white"/>`;
+    svg += '</svg>';
+    wheelRotor.innerHTML = svg;
+}
+buildWheel();
+
+let wheelRotation = 0;          // cumulative degrees applied to the rotor
+let spinning = false;
+let spinTimer = null;
+let animalSlideActive = false;  // false once the meeting moves on, so a late spin end does nothing
+let revealed = false;           // wheel has stopped and the gif area is showing
+let wantGif = false;            // a gif was asked for while the queue was empty
+let currentAnimal = null;
+let gifQueue = [];
+
+function showWheel() {
+    animalSlideActive = true;
+    revealed = false;
+    wantGif = false;
+    updateTeamName('Spin the Wheel!');
+    animalGifEl.style.display = 'none';
+    wheelBox.style.display = 'block';
+    spinButton.disabled = false;
+}
+
+function spinWheel() {
+    if (spinning) return;
+    spinning = true;
+    spinButton.disabled = true;
+
+    const n = WHEEL_ANIMALS.length, step = 360 / n;
+    const index = Math.floor(Math.random() * n);
+    currentAnimal = WHEEL_ANIMALS[index];
+    gifQueue = [];
+    loadGifs(currentAnimal);    // fetch while the wheel is still spinning
+
+    // Pick the winner first, then rotate so its wedge ends under the pointer at
+    // the top (a little off-centre so it doesn't always land the same way),
+    // after five or six full turns.
+    const centre = index * step + step / 2;
+    const jitter = (Math.random() - 0.5) * step * 0.7;
+    const target = ((360 - centre - jitter) % 360 + 360) % 360;
+    const current = ((wheelRotation % 360) + 360) % 360;
+    const delta = (target - current + 360) % 360;
+    wheelRotation += 360 * (5 + Math.floor(Math.random() * 2)) + delta;
+    wheelRotor.style.transform = `rotate(${wheelRotation}deg)`;
+
+    clearTimeout(spinTimer);
+    spinTimer = setTimeout(onSpinEnd, 4600);   // backup in case transitionend never fires
+}
+
+function onSpinEnd(e) {
+    if (e && e.propertyName && e.propertyName !== 'transform') return;
+    clearTimeout(spinTimer);
+    if (!spinning) return;
+    spinning = false;
+    if (!animalSlideActive) return;
+    setTimeout(revealAnimal, 600);   // a beat to see where it landed
+}
+wheelRotor.addEventListener('transitionend', onSpinEnd);
+
+function revealAnimal() {
+    if (!animalSlideActive) return;
+    revealed = true;
+    wheelBox.style.display = 'none';
+    updateTeamName(`Cute ${currentAnimal.name} GIF of the Week`);
+    winnerIcon.querySelector('span').textContent = currentAnimal.emoji;
+    winnerIcon.classList.add('active');
+    anotherButton.textContent = `Another ${currentAnimal.name}`;
+    animalImgEl.src = '';
+    animalImgEl.alt = `Loading a ${currentAnimal.name.toLowerCase()}...`;
+    animalGifEl.style.display = 'block';
+    showNextGif();
+}
+
+function showNextGif() {
+    if (!gifQueue.length) {
+        wantGif = true;
+        animalImgEl.src = '';
+        animalImgEl.alt = `Loading a ${currentAnimal.name.toLowerCase()}...`;
+        loadGifs(currentAnimal);
         return;
     }
-    const offset = Math.floor(Math.random() * 25); // pool = top 50 results; deeper pages drift off topic
+    animalImgEl.src = gifQueue.pop();
+    animalImgEl.alt = `Cute ${currentAnimal.name.toLowerCase()}`;
+}
+
+// Fetch a page of GIPHY search results for the animal and shuffle it into the
+// queue. Offsets stay within the top 50 results: deeper pages drift off topic.
+function loadGifs(animal, offset = Math.floor(Math.random() * 25)) {
     const url = 'https://api.giphy.com/v1/gifs/search'
         + '?api_key=' + encodeURIComponent(GIPHY_API_KEY)
-        + '&q=red+panda&limit=25&offset=' + offset + '&rating=g&lang=en';
-    fetch(url)
+        + '&q=' + encodeURIComponent(animal.query)
+        + '&limit=25&offset=' + offset + '&rating=g&lang=en';
+    return fetch(url)
         .then(r => r.ok ? r.json() : Promise.reject(new Error('GIPHY HTTP ' + r.status)))
         .then(data => {
             const gifs = (data?.data ?? [])
                 .map(g => g.images?.downsized_medium?.url || g.images?.original?.url)
                 .filter(Boolean);
+            if (!gifs.length && offset > 0) return loadGifs(animal, 0);   // thin result set
             if (!gifs.length) throw new Error('GIPHY returned no gifs');
             shuffleArray(gifs);
-            pandaQueue = gifs;
-            showPanda(pandaQueue.pop());
+            deliverGifs(animal, gifs);
         })
         .catch(err => {
             console.warn('GIPHY failed, falling back to a photo:', err);
-            loadFallbackPanda();
+            loadFallbackPhoto(animal);
         });
 }
 
-function showPanda(url) {
-    pandaImgEl.src = url;
-    pandaImgEl.alt = 'Cute red panda';
+function deliverGifs(animal, urls) {
+    if (animal !== currentAnimal) return;   // the wheel was spun again meanwhile
+    gifQueue = urls;
+    if (revealed && wantGif) {
+        wantGif = false;
+        showNextGif();
+    }
 }
 
-// Fallback when GIPHY is unavailable (missing key, rate limit, outage): a
-// random red panda photo from some-random-api, which needs no key.
-function loadFallbackPanda() {
-    fetch('https://some-random-api.com/animal/red_panda')
+// When GIPHY is unavailable (rate limit, outage, dead key): a random photo of
+// the animal from some-random-api, which needs no key, where it has one.
+function loadFallbackPhoto(animal) {
+    if (!animal.fallback) { noGif(animal); return; }
+    fetch('https://some-random-api.com/animal/' + animal.fallback)
         .then(r => r.json())
         .then(data => {
-            if (data?.image) {
-                pandaImgEl.src = data.image;
-                pandaImgEl.alt = 'Cute red panda';
-            } else {
-                pandaImgEl.alt = 'No red panda this week, sorry';
-            }
+            if (!data?.image) throw new Error('no image');
+            deliverGifs(animal, [data.image]);
         })
-        .catch(() => { pandaImgEl.alt = 'No red panda this week, sorry'; });
+        .catch(() => noGif(animal));
 }
 
-document.getElementById('newPanda').addEventListener('click', loadRandomPanda);
+function noGif(animal) {
+    if (animal === currentAnimal && revealed) {
+        wantGif = false;
+        animalImgEl.alt = `No ${animal.name.toLowerCase()} this week, sorry`;
+    }
+}
+
+spinButton.addEventListener('click', spinWheel);
+anotherButton.addEventListener('click', showNextGif);
+spinAgainButton.addEventListener('click', () => {
+    winnerIcon.classList.remove('active');
+    showWheel();
+});
 
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));

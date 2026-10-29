@@ -112,7 +112,7 @@ body, html {
     background-color: rgb(243, 78, 89);
 }
 
-.panda {
+.animal {
     background-color: rgb(200, 160, 220);
 }
 
@@ -203,18 +203,66 @@ body, html {
     height: 200px;
 }
 
-/* Red panda gif slide */
-#pandaGif {
+/* Animal break: spin the wheel, then gifs of whatever it lands on */
+#wheelBox {
+    margin: 10px auto 0;
+    text-align: center;
+}
+.wheel-wrap {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    margin: 0 auto;
+}
+.wheel-rotor {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    transform: rotate(0deg);
+    transition: transform 4.2s cubic-bezier(0.12, 0.65, 0.1, 1);
+    will-change: transform;
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,0.25));
+}
+.wheel-rotor svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.wheel-rotor text {
+    font-size: 34px;
+    text-shadow: none;
+}
+.wheel-pointer {
+    position: absolute;
+    z-index: 2;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 32px solid white;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+}
+#icon-winner span {
+    display: block;
+    font-size: 150px;
+    line-height: 200px;
+    text-shadow: none;
+}
+#animalGif {
     margin: 20px auto;
     text-align: center;
 }
-#pandaGif img {
+#animalGif img {
     max-width: 480px;
     max-height: 360px;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
-#newPanda {
+.break-btn {
     margin-top: 16px;
     background-color: rgba(255,255,255,0.3);
     color: white;
@@ -227,8 +275,17 @@ body, html {
     font-weight: 700;
     transition: background-color 0.3s;
 }
-#newPanda:hover {
+.break-btn:hover {
     background-color: rgba(255,255,255,0.5);
+}
+#spinWheel {
+    font-size: 26px;
+    padding: 10px 32px;
+    margin-top: 20px;
+}
+#spinWheel:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 .giphy-credit {
     margin-top: 10px;
