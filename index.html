@@ -64,18 +64,7 @@
         </div>
         <div id="animalGif" style="display:none;">
             <img id="animalImg" src="" alt="Cute animal">
-            <div>
-                <button id="anotherGif" class="break-btn">Another</button>
-                <button id="spinAgain" class="break-btn">Spin Again</button>
-            </div>
             <div class="giphy-credit">Powered by GIPHY</div>
-        </div>
-        <!-- #adventure mode: shown on the slide behind the full-screen game (see adventure.js) -->
-        <div id="adventureBox" style="display:none;">
-            <div>
-                <button id="adventurePlayAgain" class="break-btn">Back into the village</button>
-                <button id="adventureSpinAgain" class="break-btn">Spin Again</button>
-            </div>
         </div>
         <div id="timer" class="timer"></div>
         <div id="weeklyPrompt"></div>
@@ -83,7 +72,13 @@
 
 
       
-    <button id="nextTeam">Start</button>
+    <!-- one row at the bottom: the break's buttons sit next to Next Team / Back to Work -->
+    <div id="bottomBar">
+        <button id="anotherGif" class="break-btn" style="display:none;">Another</button>
+        <button id="adventurePlayAgain" class="break-btn" style="display:none;">Back into the village</button>
+        <button id="spinAgain" class="break-btn" style="display:none;">Spin Again</button>
+        <button id="nextTeam">Start</button>
+    </div>
     <button id="pauseTimer" title="Pause (space)" style="display:none;">&#x23F8;&#xFE0E;</button>
 
     <audio id="timerSound" src="chime.mp3" preload="auto"></audio>
@@ -131,7 +126,13 @@
             <button class="adv-back" id="djBack">← back to the village</button>
             <p class="adv-eyebrow">Main Stage</p>
             <h2>Main Stage</h2>
-            <canvas id="djStage"></canvas>
+            <div class="stage-wrap">
+                <canvas id="djStage"></canvas>
+                <div id="djGif">
+                    <img id="djGifImg" src="" alt="">
+                    <div class="dj-gif-bar"><button id="djGifNext" class="tbtn cyan">Next GIF ▸</button><span class="dj-gif-credit">Powered by GIPHY</span></div>
+                </div>
+            </div>
             <div class="deck">
                 <button class="tbtn" id="djPlay">▶ Play the set</button>
                 <button class="tbtn cyan" id="djDrop">DROP IT</button>
@@ -151,6 +152,7 @@
     </div>
 
     <script src="weekly_prompts_5.js"></script>
+    <script src="gifs.js"></script>
     <script src="adventure.js"></script>
     <script src="script_6.js"></script>
 

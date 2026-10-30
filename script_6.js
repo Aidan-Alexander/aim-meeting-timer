@@ -87,6 +87,8 @@ nextTeamButton.addEventListener('click', () => {
     animalSlideActive = false;
     stopAdventure();
     teamNameElement.classList.remove('long');
+    document.body.classList.toggle('break', team === "Animal Break");   // compact layout so everything fits
+    showBreakButtons('none');
     wheelBox.style.display = 'none';
     animalGifEl.style.display = 'none';
     pauseButton.style.display = 'none';
@@ -188,16 +190,15 @@ function setBodyBackgroundColor(color) {
 }
 
 // Animal break ---------------------------------------------------------------
-// A wheel picks the animal, then the gifs come from GIPHY search.
-// GIPHY_API_KEY is a client-side key (visible in the page source by design,
-// rate-limited per key, not a secret) created at developers.giphy.com.
-const GIPHY_API_KEY = 'PpyiwtuliHaL9LNjgZr7hpeIKD8JyNHJ';
+// A wheel picks the animal, then the gifs come from GIPHY via gifs.js
+// (window.AnimalGifs), which also serves the Main Stage drop in #adventure mode.
 
 // name: used in the title and button. emoji: wheel wedge and slide icon (no
 // red panda or capybara emoji exist, so raccoon and beaver stand in). query:
 // GIPHY search term; plain names drift into sports teams and cartoons, so some
-// are qualified. fallback: some-random-api animal for a photo if GIPHY fails,
-// null where it has none.
+// are qualified. ids: hand-picked GIPHY gif ids used instead of the search
+// where the search is poor. fallback: some-random-api animal for a photo if
+// GIPHY fails, null where it has none.
 const ANIMALS = [
     { name: 'Rabbit',    emoji: '🐰', query: 'cute bunny',   fallback: null },
     { name: 'Red Panda', emoji: '🦝', query: 'red panda',    fallback: 'red_panda' },
@@ -207,7 +208,11 @@ const ANIMALS = [
     { name: 'Otter',     emoji: '🦦', query: 'sea otter',    fallback: null },
     { name: 'Capybara',  emoji: '🦫', query: 'capybara',     fallback: null },
     { name: 'Penguin',   emoji: '🐧', query: 'baby penguin', fallback: null },
-    { name: 'Nematode',  emoji: '🪱', query: 'nematode',     fallback: null },
+    { name: 'Nematode',  emoji: '🪱', query: 'nematode',     fallback: null,
+      // GIPHY's nematode search is mostly amoebas and SpongeBob, so these are hand-picked:
+      // MIT and Harvard C. elegans microscopy, a nematode in a tissue section, a glowing worm
+      // on black, the FAO soil worm, a parasitic-worm render, and a worm doodle.
+      ids: ['W1rPKWG8BMEpovEu4i', '117nq2kn9CWoPm', '3iIiiVM39VboaadpTl', 'WtMdgfmmO9NX3uCWmx', 'THCDpsUBTZyofQPi7a', 'ppDLFLxxd60Eg', 'khrPCZqBzLJZk6pIvn'] },
 ];
 const WHEEL_COLORS = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#4d908e', '#577590', '#277da1'];
 
@@ -229,8 +234,6 @@ const animalGifEl = document.getElementById('animalGif');
 const animalImgEl = document.getElementById('animalImg');
 const anotherButton = document.getElementById('anotherGif');
 const spinAgainButton = document.getElementById('spinAgain');
-const adventureBox = document.getElementById('adventureBox');
-const adventureSpinAgain = document.getElementById('adventureSpinAgain');
 const adventurePlayAgain = document.getElementById('adventurePlayAgain');
 
 // Draw the wheel: one wedge per animal, clockwise from the top, emoji facing outwards.
@@ -260,14 +263,12 @@ let spinning = false;
 let spinTimer = null;
 let animalSlideActive = false;  // false once the meeting moves on, so a late spin end does nothing
 let revealed = false;           // wheel has stopped and the gif area is showing
-let wantGif = false;            // a gif was asked for while the queue was empty
+let gifRequest = 0;             // bumps on every gif request so late answers are ignored
 let currentAnimal = null;
-let gifQueue = [];
 
 function showWheel() {
     animalSlideActive = true;
     revealed = false;
-    wantGif = false;
     if (MODES.has('nematodes')) {
         updateTeamName('This week we\'re making the wheel more representative');
         teamNameElement.classList.add('long');
@@ -277,6 +278,14 @@ function showWheel() {
     animalGifEl.style.display = 'none';
     wheelBox.style.display = 'block';
     spinButton.disabled = false;
+    showBreakButtons('none');
+}
+
+// Which of the break's buttons sit next to Back to Work in the bottom row.
+function showBreakButtons(mode) {   // 'none' | 'gif' | 'adventure'
+    anotherButton.style.display = mode === 'gif' ? '' : 'none';
+    adventurePlayAgain.style.display = mode === 'adventure' ? '' : 'none';
+    spinAgainButton.style.display = mode === 'none' ? 'none' : '';
 }
 
 function spinWheel() {
@@ -287,8 +296,7 @@ function spinWheel() {
     const n = WHEEL_ANIMALS.length, step = 360 / n;
     const index = Math.floor(Math.random() * n);
     currentAnimal = WHEEL_ANIMALS[index];
-    gifQueue = [];
-    if (!MODES.has('adventure')) loadGifs(currentAnimal);    // fetch while the wheel is still spinning
+    AnimalGifs.prefetch(currentAnimal).catch(() => {});    // start loading while the wheel is still spinning
 
     // Pick the winner first, then rotate so its wedge ends under the pointer at
     // the top (a little off-centre so it doesn't always land the same way),
@@ -324,7 +332,7 @@ function revealAnimal() {
         updateTeamName(`${currentAnimal.name} Adventure`);
         winnerIcon.querySelector('span').textContent = currentAnimal.emoji;
         winnerIcon.classList.add('active');
-        adventureBox.style.display = 'block';
+        showBreakButtons('adventure');
         Adventure.start(currentAnimal, ANIMALS);
         return;
     }
@@ -335,72 +343,22 @@ function revealAnimal() {
     animalImgEl.src = '';
     animalImgEl.alt = `Loading a ${currentAnimal.name.toLowerCase()}...`;
     animalGifEl.style.display = 'block';
+    showBreakButtons('gif');
     showNextGif();
 }
 
 function showNextGif() {
-    if (!gifQueue.length) {
-        wantGif = true;
-        animalImgEl.src = '';
-        animalImgEl.alt = `Loading a ${currentAnimal.name.toLowerCase()}...`;
-        loadGifs(currentAnimal);
-        return;
-    }
-    animalImgEl.src = gifQueue.pop();
-    animalImgEl.alt = `Cute ${currentAnimal.name.toLowerCase()}`;
-}
-
-// Fetch a page of GIPHY search results for the animal and shuffle it into the
-// queue. Offsets stay within the top 50 results: deeper pages drift off topic.
-function loadGifs(animal, offset = Math.floor(Math.random() * 25)) {
-    const url = 'https://api.giphy.com/v1/gifs/search'
-        + '?api_key=' + encodeURIComponent(GIPHY_API_KEY)
-        + '&q=' + encodeURIComponent(animal.query)
-        + '&limit=25&offset=' + offset + '&rating=g&lang=en';
-    return fetch(url)
-        .then(r => r.ok ? r.json() : Promise.reject(new Error('GIPHY HTTP ' + r.status)))
-        .then(data => {
-            const gifs = (data?.data ?? [])
-                .map(g => g.images?.downsized_medium?.url || g.images?.original?.url)
-                .filter(Boolean);
-            if (!gifs.length && offset > 0) return loadGifs(animal, 0);   // thin result set
-            if (!gifs.length) throw new Error('GIPHY returned no gifs');
-            shuffleArray(gifs);
-            deliverGifs(animal, gifs);
-        })
-        .catch(err => {
-            console.warn('GIPHY failed, falling back to a photo:', err);
-            loadFallbackPhoto(animal);
-        });
-}
-
-function deliverGifs(animal, urls) {
-    if (animal !== currentAnimal) return;   // the wheel was spun again meanwhile
-    gifQueue = urls;
-    if (revealed && wantGif) {
-        wantGif = false;
-        showNextGif();
-    }
-}
-
-// When GIPHY is unavailable (rate limit, outage, dead key): a random photo of
-// the animal from some-random-api, which needs no key, where it has one.
-function loadFallbackPhoto(animal) {
-    if (!animal.fallback) { noGif(animal); return; }
-    fetch('https://some-random-api.com/animal/' + animal.fallback)
-        .then(r => r.json())
-        .then(data => {
-            if (!data?.image) throw new Error('no image');
-            deliverGifs(animal, [data.image]);
-        })
-        .catch(() => noGif(animal));
-}
-
-function noGif(animal) {
-    if (animal === currentAnimal && revealed) {
-        wantGif = false;
+    const animal = currentAnimal, token = ++gifRequest;
+    animalImgEl.src = '';
+    animalImgEl.alt = `Loading a ${animal.name.toLowerCase()}...`;
+    AnimalGifs.next(animal).then(url => {
+        if (token !== gifRequest || animal !== currentAnimal || !revealed) return;   // the wheel moved on meanwhile
+        animalImgEl.src = url;
+        animalImgEl.alt = `Cute ${animal.name.toLowerCase()}`;
+    }, () => {
+        if (token !== gifRequest || animal !== currentAnimal) return;
         animalImgEl.alt = `No ${animal.name.toLowerCase()} this week, sorry`;
-    }
+    });
 }
 
 spinButton.addEventListener('click', spinWheel);
@@ -411,14 +369,12 @@ function spinAgain() {
     showWheel();
 }
 spinAgainButton.addEventListener('click', spinAgain);
-adventureSpinAgain.addEventListener('click', spinAgain);
 adventurePlayAgain.addEventListener('click', () => {
     if (currentAnimal && window.Adventure) Adventure.start(currentAnimal, ANIMALS);
 });
 
 function stopAdventure() {
     if (window.Adventure) Adventure.stop();
-    adventureBox.style.display = 'none';
 }
 
 function getWeekNumber(d) {

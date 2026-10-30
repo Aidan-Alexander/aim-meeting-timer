@@ -75,6 +75,7 @@ body, html {
     margin: 0;
     display: flex;
     justify-content: center;
+    justify-content: safe center; /* if a slide is still too tall, keep its top reachable */
     align-items: center;
     flex-direction: column; /* Stack vertically */
     font-family: "Fredoka", sans-serif;
@@ -192,6 +193,9 @@ body, html {
     height: 200px;
     margin: 10px auto;
 }
+#teamIcon:not(:has(.team-icon.active)) {
+    display: none; /* no empty slot while the wheel is up */
+}
 .team-icon {
     display: none;
 }
@@ -253,12 +257,12 @@ body, html {
     text-shadow: none;
 }
 #animalGif {
-    margin: 20px auto;
+    margin: 12px auto 0;
     text-align: center;
 }
 #animalGif img {
-    max-width: 480px;
-    max-height: 360px;
+    max-width: min(640px, 80vw);
+    max-height: min(400px, 45vh);
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
@@ -287,20 +291,54 @@ body, html {
     opacity: 0.5;
     cursor: default;
 }
-.giphy-credit {
-    margin-top: 10px;
+#animalGif .giphy-credit {
+    margin-top: 6px;
     font-size: 13px;
     color: rgba(255,255,255,0.7);
 }
 
+/* bottom row: the break's buttons next to Next Team / Back to Work */
+#bottomBar {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+#bottomBar .break-btn {
+    margin-top: 0;
+    padding: 12px 20px;
+    font-size: 20px;
+}
+
+/* compact layout on the animal break so title, icon, gif and buttons share one screen */
+body.break #teamName {
+    font-size: 64px;
+}
+body.break #teamName.long {
+    font-size: 48px;
+}
+body.break #teamIcon {
+    width: 120px;
+    height: 120px;
+    margin: 6px auto;
+}
+body.break .team-icon img {
+    width: 120px;
+    height: 120px;
+}
+body.break #icon-winner span {
+    font-size: 92px;
+    line-height: 120px;
+}
+
 /* #adventure mode: a full-screen night village and Main Stage, after Twizl */
 #teamName.long {
-    font-size: 56px;
+    font-size: 48px;
     max-width: 1100px;
-    text-align: center;
-}
-#adventureBox {
-    margin: 10px auto 0;
     text-align: center;
 }
 #adventureScreen {
@@ -463,6 +501,10 @@ body, html {
     margin: 6px 0 10px;
     color: #ece6da;
 }
+#adventureScreen .stage-wrap {
+    position: relative;
+    margin: 18px 0;
+}
 #djStage {
     width: 100%;
     height: min(60vh, 520px);
@@ -471,7 +513,49 @@ body, html {
     border-radius: 14px;
     background: #000;
     border: 1px solid rgba(255,255,255,0.07);
-    margin: 18px 0;
+}
+/* the animal's gif, over the stage once the set drops */
+#djGif {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(78%, 680px);
+    display: none;
+    text-align: center;
+}
+#djGif.on {
+    display: block;
+    animation: dj-gif-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@keyframes dj-gif-in {
+    from { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+}
+#djGif img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 340px;
+    min-height: 120px;
+    border-radius: 12px;
+    border: 2px solid #ff2fa0;
+    background: #000;
+    color: #ece6da;
+    box-shadow: 0 0 30px rgba(255,47,160,0.55), 0 20px 50px rgba(0,0,0,0.8);
+}
+.dj-gif-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 10px;
+}
+.dj-gif-credit {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #a9a397;
 }
 #adventureScreen .deck {
     display: grid;

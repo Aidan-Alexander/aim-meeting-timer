@@ -445,10 +445,12 @@ function openTent() {
     worldEl.classList.remove('on'); tentEl.classList.add('on'); tentEl.scrollTop = 0;
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     stageShow();
+    if (window.AnimalGifs && heroAnimal) AnimalGifs.prefetch(heroAnimal).catch(() => {});
 }
 function backToTown() {
     if (seq.on) seqStop();
     shoutEl.classList.remove('on');
+    hideDropGif();
     scene = 'village';
     tentEl.classList.remove('on'); worldEl.classList.add('on');
     for (const k in keys) keys[k] = false;
@@ -498,6 +500,7 @@ function stop() {
     window.removeEventListener('keyup', onKeyUp);
     if (seq.on) seqStop();
     shoutEl.classList.remove('on');
+    hideDropGif();
     bubbleEl.classList.remove('show'); clearTimeout(bubbleTimer);
     screenEl.classList.remove('on'); worldEl.classList.remove('on'); tentEl.classList.remove('on');
     document.body.style.overflow = '';
@@ -519,6 +522,9 @@ const cutEl = document.getElementById('djCut'), resEl = document.getElementById(
 const hatdEl = document.getElementById('djHatd'), driveEl = document.getElementById('djDrive');
 const phaseEl = document.getElementById('djPhase');
 const shoutEl = document.getElementById('djShout');
+const djGifEl = document.getElementById('djGif');
+const djGifImg = document.getElementById('djGifImg');
+const djGifNext = document.getElementById('djGifNext');
 const isOn = () => active && scene === 'tent';
 
 /* ---------- audio core ---------- */
@@ -589,12 +595,12 @@ function schedule(){
     }
     seq.next+=s16; seq.step++;
     if(seq.step%16===0){ seq.bar++;
-      if(ph==="build"){ seq.buildBar++; phaseEl.textContent="BUILDING"; if(seq.buildBar>=8){ seq.phase="drop"; seq.dropBar=0; phaseEl.textContent="DROP"; if(isOn()) shout(STAGE.dropShout); } }
+      if(ph==="build"){ seq.buildBar++; phaseEl.textContent="BUILDING"; if(seq.buildBar>=8){ seq.phase="drop"; seq.dropBar=0; phaseEl.textContent="DROP"; if(isOn()) shout(STAGE.dropShout, showDropGif); } }
       else if(ph==="drop"){ seq.dropBar++; if(seq.dropBar>=12){ seq.phase="groove"; phaseEl.textContent="groove"; } }
     }
   }
 }
-function shout(words){ let i=0; const tickW=()=>{ if(i>=words.length||!isOn()){ shoutEl.classList.remove("on"); return; } shoutEl.textContent=words[i++]; shoutEl.classList.add("on"); setTimeout(tickW,420); }; tickW(); }
+function shout(words, done){ let i=0; const tickW=()=>{ if(i>=words.length||!isOn()){ shoutEl.classList.remove("on"); if(done&&isOn()) done(); return; } shoutEl.textContent=words[i++]; shoutEl.classList.add("on"); setTimeout(tickW,420); }; tickW(); }
 playBtn.onclick=()=>{ seq.on?seqStop():seqStart(); };
 bpmEl.oninput=e=>bpmvEl.textContent=e.target.value;
 function applyFx(){ if(!seq.filter||!AC) return; const t=AC.currentTime; const f=filtEl.value/100; seq.filter.frequency.setTargetAtTime(200*Math.pow(90,f),t,.03); seq.filter.Q.value=1+(1-f)*6; const dw=dlyEl.value/100; seq.send.gain.setTargetAtTime(dw*.8,t,.03); seq.fb.gain.setTargetAtTime(.25+dw*.5,t,.03); if(seq.revSend) seq.revSend.gain.setTargetAtTime(dw*dw*1.1,t,.03); const dv=driveEl.value/100; seq.drive.curve=makeDrive(1+dv*dv*40); seq.bus.gain.value=.9-dv*.45; }
@@ -606,7 +612,20 @@ document.getElementById('djBack').onclick=()=>{ if(isOn()) backToTown(); };
 
 /* ---------- stage canvas ---------- */
 const confetti=[]; let stageT0=0; const jellies=[], bubbles=[];
-function stageShow(){ stageT0=performance.now(); jellies.length=0; bubbles.length=0; confetti.length=0; phaseEl.textContent=''; playBtn.textContent=seq.on?STAGE.stop:STAGE.play; }
+function stageShow(){ stageT0=performance.now(); jellies.length=0; bubbles.length=0; confetti.length=0; phaseEl.textContent=''; playBtn.textContent=seq.on?STAGE.stop:STAGE.play; hideDropGif(); }
+
+// After the drop (and the shout), the animal's gif comes up over the stage with a Next GIF button.
+let dropGifRequest = 0;
+function showDropGif(){ if(!isOn()) return; djGifEl.classList.add('on'); nextDropGif(); }
+function hideDropGif(){ djGifEl.classList.remove('on'); djGifImg.src=''; djGifImg.alt=''; dropGifRequest++; }
+function nextDropGif(){
+    if(!heroAnimal||!window.AnimalGifs) return;
+    const animal=heroAnimal, token=++dropGifRequest;
+    djGifImg.src=''; djGifImg.alt='Loading a '+animal.name.toLowerCase()+'...';
+    AnimalGifs.next(animal).then(url=>{ if(token!==dropGifRequest||!isOn()) return; djGifImg.src=url; djGifImg.alt='Cute '+animal.name.toLowerCase(); },
+        ()=>{ if(token!==dropGifRequest) return; djGifImg.alt='No '+animal.name.toLowerCase()+' gif tonight, sorry'; });
+}
+djGifNext.onclick=nextDropGif;
 function stageFrame(t, dt){
   const c=stageCanvas, x=c.getContext("2d");
   const dpr=window.devicePixelRatio||1;
@@ -666,6 +685,6 @@ function stageFrame(t, dt){
 window.Adventure = {
     start, stop,
     // for headless tests
-    _debug: { WW, WH, SKY, tent, sign, pond, bridge, blocked, hero, get npcs() { return npcs; }, get state() { return { scene, active, inZone: state.inZone }; } },
+    _debug: { WW, WH, SKY, tent, sign, pond, bridge, blocked, hero, showDropGif, hideDropGif, get npcs() { return npcs; }, get state() { return { scene, active, inZone: state.inZone }; } },
 };
 })();
